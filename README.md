@@ -51,8 +51,68 @@ __TRUE.__ People with higher vehicle damage are percentually more interested.
 ![](https://img001.prntscr.com/file/img001/-JPedch9QZq36dwVd-sbbA.png)
 
 ## Data Preparation
+- Rescaling: Min Max Scaler
+- Encoding: One Hot Encoding, Target Encoding
+
 ## Feature Selection
+
+I chose the top 7 features in terms of importance according to an Extra Trees model.
+
+|Feature|Importance|
+|-------|----------|
+|vintage|0.272447|
+|annual_premium|0.245530|
+|age|0.164914|
+|region_code|0.105027|
+|vehicle_damage|0.069313|
+|policy_sales_channel|0.059977|
+|previously_insured|0.055369|
+
 ## Model Comparisson & Fine Tuning
-## Business Total Performance
+
+|Model|Precision at 40%|Recall at 40%|
+|-------|----------|----------|
+Extra Trees|0.270304 +/- 0.000852|0.882177 +/- 0.002779|
+Logistic Regression| 0.267552 +/-	0.000791|0.873196 +/-	0.002580|
+KNN| 0.265781 +/- 0.001006| 0.867416 +/- 0.003284|
+
+The model chosen was the Logistic regression because it runs approximately 4x faster than ExtraTrees, while having very close precision and recall numbers in comparison.
+
+The method chosen to do the fine tuning was the Random Search, and below you have the hyperparemeters chosen for this project.
+
+```
+lr_model = lr(penalty = 'none',
+                              solver = 'sag',
+                              class_weight = 'balanced',
+                              max_iter = 1000,
+                              n_jobs=-1)
+```
+
+
+|Tuned Model|Precision at 40%|Recall at 40%|
+|-------|----------|----------|
+Logistic Regression| 0.268418 +/-	0.000684|0.876022 +/-	0.002231|
+
 ## Model Performance Visualization
+
+The gain curve shows that by using the model to rank the clients, all of the interested clients are at the top ~%55 of the whole list.
+
+![Gain Curve](https://img001.prntscr.com/file/img001/kZSJiFOURKK-lM-w_V8Sgg.png)
+
+The lift curve shows that the model outperforms a random ordering by a rate of more than 2 for the top ~50% of the list.
+
+![Lift Curve](https://img001.prntscr.com/file/img001/aYNh5YNgTlm5STZBzGQngg.png)
+
+## Business Total Performance
+
+The test dataset has 127,037 clients, assuming 3 minutes per call with each one of the clients, it would take 6,352 hours to call all of the clients.
+
+According to [Indeed](https://www.indeed.com/career/call-center-representative/salaries), a call center representative gets paid $16.90 per hour.
+
+By using the model, only the top 60% clients need to be called, which means a 40% reduction of hours worked that equate to $42,942.90
+
 ## Deployment
+The model was deployed and can be requested thru API by a Google Sheets using a script I created. 
+
+![12748784-5760-4110-b93a-34dd93876317](https://user-images.githubusercontent.com/102861289/184733476-e81abf82-70de-43b0-bd18-20ccf4f721c7.gif)
+
